@@ -68,25 +68,28 @@ This system ingests raw sensor data from industrial turbofan engines, engineers 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     MEDALLION ARCHITECTURE                          │
-│                                                                     │
-│  RAW FILES          BRONZE             SILVER            GOLD       │
-│  ─────────         ────────           ────────          ──────      │
-│  NASA CMAPSS   →   4 Delta    →    3 Delta tables  →  3 Delta       │
-│  Azure PdM         tables         51 features         tables        │
-│  (6 files)         Auto Loader    Enriched            Predictions   │
-│                    Schema ✓       Feature Store        Dashboard    │
-│                    Time Travel ✓  OPTIMIZE ✓           MERGE INTO   │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        MEDALLION ARCHITECTURE                            │
+│                                                                          │
+│   RAW FILES          BRONZE              SILVER              GOLD        │
+│  ┌──────────┐      ┌──────────┐       ┌──────────┐       ┌──────────┐    │
+│  │NASA CMAPSS│ →   │ 4 Delta  │  →    │ 3 Delta  │  →    │ 3 Delta  │    │
+│  │Azure PdM  │     │  tables  │       │  tables  │       │  tables  │    │
+│  │ 6 files   │     │          │       │          │       │          │    │
+│  └──────────┘      │Auto Load │       │51 feats  │       │Prediction│    │
+│                    │Schema  ✓ │       │Enriched  │       │Schedule  │    │
+│                    │TimeTrav ✓│       │Feat Store│       │MERGE INTO│    │
+│                    │OPTIMIZE ✓│       │OPTIMIZE ✓│       │OPTIMIZE ✓│   │
+│                    └──────────┘       └──────────┘       └──────────┘    │
+└──────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
 │                       ML PIPELINE                                   │
 │                                                                     │
-│  Feature Store  →  MLflow Exp 1  →  MLflow Exp 2  →  Model         │
-│  gold_ml_input     Classification  RUL Regression    Registry      │
-│  Point-in-time     LR + RF + XGB   LR + RF + XGB    @champion      │
-│  correct           F1=0.94         RMSE=19.24        alias         │
+│  Feature Store  →  MLflow Exp 1  →  MLflow Exp 2  →  Model          │
+│  gold_ml_input     Classification  RUL Regression    Registry       │
+│  Point-in-time     LR + RF + XGB   LR + RF + XGB    @champion       │
+│  correct           F1=0.94         RMSE=19.24        alias          │
 │                    AUC=0.998       R²=0.93                          │
 │                    SHAP plots      Quantile UQ                      │
 └─────────────────────────────────────────────────────────────────────┘
